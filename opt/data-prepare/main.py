@@ -1,3 +1,11 @@
+'''
+파일 명칭 : main.py
+기     능 : 크롤러(crawler.py)와 전처리 모듈(preprocessing.py)을 호출
+입     력 : 없음
+출     력 : 없음
+작  성 자 : 송 용 단
+작성 일자 : 2026-03-11
+'''
 import pandas as pd
 from dotenv import load_dotenv
 
