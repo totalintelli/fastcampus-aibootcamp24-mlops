@@ -15,7 +15,7 @@ sys.path.append(
 
 from src.dataset.watch_log import get_datasets
 from src.dataset.data_loader import SimpleDataLoader
-from src.model.movie_predictor import MoviePredictor
+from src.model.movie_predictor import MoviePredictor, model_save
 from src.utils.utils import init_seed
 from src.train.train import train
 from src.evaluate.evaluate import evaluate
@@ -53,3 +53,12 @@ if __name__ == '__main__':
     test_loss, predictions = evaluate(model, test_loader)
     print(f"Test Loss : {test_loss:.4f}")
     print([train_dataset.decode_content_id(idx) for idx in predictions])
+
+    model_save(
+        model=model,
+        model_params=model_params,
+        epoch=num_epochs,
+        loss=train_loss,
+        scaler=train_dataset.scaler,
+        label_encoder=train_dataset.label_encoder,
+    )   
