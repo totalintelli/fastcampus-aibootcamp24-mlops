@@ -33,3 +33,9 @@ def model_dir(model_name):
         "models",
         model_name
     )
+
+# Run name 자동 지정하기
+def auto_increment_run_suffix(name: str, pad=3):
+    suffix = name.split("-")[-1]
+    next_suffix = str(int(suffix) + 1).zfill(pad)
+    return name.replace(suffix, next_suffix)

@@ -22,10 +22,21 @@ from src.evaluate.evaluate import evaluate
 from src.model.movie_predictor import MoviePredictor, model_save
 from src.train.train import train
 from src.utils.factory import ModelFactory
-from src.utils.utils import init_seed
+from src.utils.utils import init_seed, auto_increment_run_suffix
 
 init_seed()
 load_dotenv()
+
+def get_runs(project_name):
+    return wandb.Api().runs(path=project_name, order="-created_at")
+
+
+def get_latest_run(project_name):
+    runs = get_runs(project_name)
+    if not runs:
+        return f"{project_name}-000"
+
+    return runs[0].name
 
 
 def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
@@ -53,11 +64,17 @@ def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
     wandb.login(key=api_key)
 
     project_name = model_name.replace("_", "-")
+    
+    run_name = get_latest_run(project_name)
+    next_run_name = auto_increment_run_suffix(run_name)
+
     wandb.init(
         project=project_name,
+        id=next_run_name,
+        name=next_run_name,
         notes="content-based movie recommend model",
         tags=["content-based", "movie", "recommend"],
-        config=locals(),  # 실무에서는 사용하면 안 됨, 실습용
+        config=locals(),
     )
 
     # 학습 루프
@@ -71,7 +88,7 @@ def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
             f"Val-Train Loss : {val_loss-train_loss:.4f}"
         )
         wandb.log({"Loss/Train": train_loss})
-        wandb.log({"Loss/valid": wal_loss})
+        wandb.log({"Loss/valid": val_loss})
 
     # 테스트
     test_loss, predictions = evaluate(model, test_loader)
@@ -88,6 +105,8 @@ def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
     )
 
     wandb.finish()
+
+
 
 
 if __name__ == "__main__":
