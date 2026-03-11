@@ -1,3 +1,11 @@
+'''
+파일 명칭 : crawler.py
+기     능 : TMDB API를 활용하여 영화 데이터 크롤링
+입     력 : TMDB 영화 데이터 표
+출     력 : TMDB 영화 데이터 JSON 파일
+작 성  자 : 송 용 단
+작성 일자 : 2026-03-11
+'''
 import os
 import json
 import time
