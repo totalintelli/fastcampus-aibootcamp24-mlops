@@ -1,53 +1,77 @@
-'''
-파일명칭 : main.py 
+"""
+파일명칭 : main.py
 기    능 : 메인 진입점. 전체과정(데이터셋 준비 -> 모델 준비 -> 학습 -> 검증 및 평가 -> (모델 저장)) 일괄 수행
-입    력 : 
-출    력 : 
+입    력 :
+출    력 :
 작 성 자 : 송 용 단
 작성일자 : 2026-03-11
-'''
+"""
+
 import os
 import sys
 
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
+import fire
+import wandb
+from dotenv import load_dotenv
 
-from src.dataset.watch_log import get_datasets
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.dataset.data_loader import SimpleDataLoader
-from src.model.movie_predictor import MoviePredictor, model_save
-from src.utils.utils import init_seed
-from src.train.train import train
+from src.dataset.watch_log import get_datasets
 from src.evaluate.evaluate import evaluate
-
+from src.model.movie_predictor import MoviePredictor, model_save
+from src.train.train import train
+from src.utils.factory import ModelFactory
+from src.utils.utils import init_seed
 
 init_seed()
+load_dotenv()
 
 
-if __name__ == '__main__':
+def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
     # 데이터셋 및 DataLoader 생성
     train_dataset, val_dataset, test_dataset = get_datasets()
-    train_loader = SimpleDataLoader(train_dataset.features, train_dataset.labels, batch_size=64, shuffle=True)
-    val_loader = SimpleDataLoader(val_dataset.features, val_dataset.labels, batch_size=64, shuffle=False)
-    test_loader = SimpleDataLoader(test_dataset.features, test_dataset.labels, batch_size=64, shuffle=False)
+    train_loader = SimpleDataLoader(
+        train_dataset.features, train_dataset.labels, batch_size=64, shuffle=True
+    )
+    val_loader = SimpleDataLoader(
+        val_dataset.features, val_dataset.labels, batch_size=64, shuffle=False
+    )
+    test_loader = SimpleDataLoader(
+        test_dataset.features, test_dataset.labels, batch_size=64, shuffle=False
+    )
 
     # 모델 초기화
     model_params = {
         "input_dim": train_dataset.features_dim,
         "num_classes": train_dataset.num_classes,
-        "hidden_dim": 64
+        "hidden_dim": 64,
     }
-    model = MoviePredictor(**model_params)
+    model = ModelFactory.create(model_name, **model_params)
+
+    api_key = os.environ["WANDB_API_KEY"]
+    wandb.login(key=api_key)
+
+    project_name = model_name.replace("_", "-")
+    wandb.init(
+        project=project_name,
+        notes="content-based movie recommend model",
+        tags=["content-based", "movie", "recommend"],
+        config=locals(),  # 실무에서는 사용하면 안 됨, 실습용
+    )
 
     # 학습 루프
-    num_epochs = 10
     for epoch in range(num_epochs):
         train_loss = train(model, train_loader)
         val_loss, _ = evaluate(model, val_loader)
-        print(f"Epoch {epoch + 1}/{num_epochs}, "
-              f"Train Loss: {train_loss:.4f}, "
-              f"Val Loss: {val_loss:.4f}, "
-              f"Val-Train Loss : {val_loss-train_loss:.4f}")
+        print(
+            f"Epoch {epoch + 1}/{num_epochs}, "
+            f"Train Loss: {train_loss:.4f}, "
+            f"Val Loss: {val_loss:.4f}, "
+            f"Val-Train Loss : {val_loss-train_loss:.4f}"
+        )
+        wandb.log({"Loss/Train": train_loss})
+        wandb.log({"Loss/valid": wal_loss})
 
     # 테스트
     test_loss, predictions = evaluate(model, test_loader)
@@ -61,4 +85,14 @@ if __name__ == '__main__':
         loss=train_loss,
         scaler=train_dataset.scaler,
         label_encoder=train_dataset.label_encoder,
-    )   
+    )
+
+    wandb.finish()
+
+
+if __name__ == "__main__":
+    fire.Fire(
+        {
+            "train": run_train,
+        }
+    )
