@@ -80,7 +80,7 @@ class WatchLogDataset:
 
 
 def read_dataset():
-    watch_log_path = os.path.join(project_path(), "dataset", "watch_log.csv")
+    watch_log_path = os.path.join(project_path(), "opt", "mlops", "dataset", "watch_log.csv")
     return pd.read_csv(watch_log_path)
 
 
