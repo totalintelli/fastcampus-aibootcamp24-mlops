@@ -1,3 +1,11 @@
+'''
+파일 명칭 : preprocessing.py
+기     능 : TMDB 원천 데이터를 전처리하여 모델링에 필요한 데이터 구성으로 변환
+입     력 : TMDB 원천 데이터
+출     력 : TMDB 데이터 CSV 파일
+작 성  자 : 송 용 단
+작성 일자 : 2026-03-11
+'''
 import random
 
 import numpy as np
