@@ -7,6 +7,39 @@
 작성일자 : 2026-03-11
 '''
 import numpy as np
+import os
+import pickle
+import datetime
+
+from src.utils.utils import model_dir
+
+
+def model_save(model, model_params, epoch, loss, scaler, label_encoder):
+    save_dir = model_dir(model.name)
+    os.makedirs(save_dir, exist_ok=True)
+
+    current_time = datetime.datetime.now().strftime("%y%m%d%H%M%S")
+    dst = os.path.join(save_dir, f"E{epoch}_T{current_time}.pkl")
+
+    save_data = {
+        "epoch": epoch,
+        "model_params": model_params,
+        "model_state_dict": {
+            "weights1": model.weights1,
+            "bias1": model.bias1,
+            "weights2": model.weights2,
+            "bias2": model.bias2,
+        },
+        "loss": loss,
+        "scaler": scaler,
+        "label_encoder": label_encoder,
+    }
+
+    # 데이터 저장
+    with open(dst, "wb") as f:
+        pickle.dump(save_data, f)
+
+    print(f"Model saved to {dst}")
 
 
 class MoviePredictor:
