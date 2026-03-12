@@ -14,6 +14,14 @@ import random
 import numpy as np
 
 
+'''
+## 모델 파일 검증 추가하기
+
+- `torch.save` 는 내부적으로 pickle을 사용해 직렬화(마샬링) 후 저장하게 됨
+    - 이는 보안적 취약점으로 작용하게 됨. 따라서 최소한의 검증 절차가 필요
+    - 아래 실습에서는 sha256 해시 알고리즘을 통해 변조 여부를 최소한으로 확인
+'''
+
 def calculate_hash(filename):
     sha256_hash = hashlib.sha256()
     with open(filename, "rb") as f:
