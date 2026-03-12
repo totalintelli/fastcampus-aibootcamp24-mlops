@@ -17,7 +17,17 @@ sys.path.append(
 )
 
 from src.model.movie_predictor import MoviePredictor
-from src.utils.utils import model_dir
+from src.utils.utils import model_dir, calculate_hash, read_hash
+
+
+def model_validation(model_path):
+    original_hash = read_hash(model_path)
+    current_hash = calculate_hash(model_path)
+    if original_hash == current_hash:
+        print("validation success")
+        return True
+    else:
+        return False
 
 
 def load_checkpoint():
@@ -25,10 +35,13 @@ def load_checkpoint():
     models_path = os.path.join(target_dir, "*.pkl")
     latest_model = glob.glob(models_path)[-1]
 
-    with open(latest_model, "rb") as f:
-        checkpoint = pickle.load(f)
+    if model_validation(latest_model):
+        with open(latest_model, "rb") as f:
+            checkpoint = pickle.load(f)
 
-    return checkpoint
+        return checkpoint
+    else:
+        raise FileExistError("Not found or invalid model file")
 
 
 def init_model(checkpoint):
