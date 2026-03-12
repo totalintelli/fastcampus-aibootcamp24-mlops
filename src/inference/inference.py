@@ -12,12 +12,20 @@ import os
 import pickle
 import sys
 
+import numpy as np
+import pandas as pd
+
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
 from src.model.movie_predictor import MoviePredictor
-from src.utils.utils import model_dir, calculate_hash, read_hash
+from src.utils.utils import calculate_hash, model_dir, read_hash
+
+
+def make_inference_df(data):
+    columns = "user_id content_id watch_seconds rating popularity".split()
+    return pd.DataFrame(data=[data], columns=columns)
 
 
 def model_validation(model_path):
