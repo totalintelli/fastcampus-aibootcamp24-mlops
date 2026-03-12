@@ -31,7 +31,23 @@ from src.model.movie_predictor import MoviePredictor, model_save
 from src.postprocess.postprocess import write_db
 from src.train.train import train
 from src.utils.factory import ModelFactory
-from src.utils.utils import auto_increment_run_suffix, init_seed
+from src.utils.utils import auto_increment_run_suffix, init_seed, model_dir, parse_date
+
+"""
+# 진입점(Entrypoint) 매개변수 조정
+
+- 데이터 전처리 등의 태스크에서는 특정 날짜에 의존적인 경우가 대부분임.
+  (특히 배치 학습, 배치 추론의 경우) 
+  따라서 전처리 태스크에 날짜 정보를 수행 파라미터로 추가
+"""
+
+
+def run_preprocessing(date):
+    parsed_date = parse_date(date)
+    print(f"Run date : {parsed_date.year}. {parsed_date.month}. {parsed_date.day}")
+    print("Run some preprocessing...")
+    print("Done!")
+
 
 # 추론 태스크 추가
 def run_inference(data=None, batch_size=64):
@@ -136,6 +152,7 @@ def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
 if __name__ == "__main__":
     fire.Fire(
         {
+            "preprocessing": run_preprocessing,
             "train": run_train,
             "inference": run_inference,
         }
