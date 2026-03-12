@@ -12,7 +12,7 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 
-
+# 배치 데이터 가져오기
 def get_engine(db_name):
     engine = create_engine(
         url=(
