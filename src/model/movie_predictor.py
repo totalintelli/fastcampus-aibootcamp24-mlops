@@ -1,11 +1,12 @@
-'''
+"""
 파일명칭 : movie_predictor.py
 기    능 : 모델 아키텍처 정의 및 학습 알고리즘 구현
 입    력 : TMDB 데이터셋
 출    력 : 추천 콘텐츠 아이디
 작성  자 : 송 용 단
 작성일자 : 2026-03-11
-'''
+"""
+
 import numpy as np
 import os
 import pickle
@@ -82,3 +83,9 @@ class MoviePredictor:
         self.bias2 -= lr * db2
         self.weights1 -= lr * dw1
         self.bias1 -= lr * db1
+
+    def load_state_dict(self, state_dict):
+        self.weights1 = state_dict["weights1"]
+        self.bias1 = state_dict["bias1"]
+        self.weights2 = state_dict["weights2"]
+        self.bias2 = state_dict["bias2"]

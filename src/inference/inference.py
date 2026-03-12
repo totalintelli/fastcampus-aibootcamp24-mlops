@@ -29,3 +29,11 @@ def load_checkpoint():
         checkpoint = pickle.load(f)
 
     return checkpoint
+
+
+def init_model(checkpoint):
+    model = MoviePredictor(**checkpoint["model_params"])
+    model.load_state_dict(checkpoint["model_state_dict"])
+    scaler = checkpoint.get("scaler", None)
+    label_encoder = checkpoint.get("label_encoder", None)
+    return model, scaler, label_encoder
