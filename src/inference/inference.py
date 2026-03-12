@@ -14,6 +14,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+from dotenv import load_dotenv
 
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -23,6 +24,7 @@ from src.dataset.data_loader import SimpleDataLoader
 from src.dataset.watch_log import WatchLogDataset, get_datasets
 from src.evaluate.evaluate import evaluate
 from src.model.movie_predictor import MoviePredictor
+from src.postprocess.postprocess import write_db
 from src.utils.utils import calculate_hash, model_dir, read_hash
 
 
@@ -77,9 +79,17 @@ def inference(model, scaler, label_encoder, data, batch_size=1):
     return [dataset.decode_content_id(idx) for idx in predictions]
 
 
+def recommend_to_df(recommend):
+    return pd.DataFrame(data=recommend, columns="recommend_content_id".split())
+
+
 if __name__ == "__main__":
+    load_dotenv()
     checkpoint = load_checkpoint()
     model, scaler, label_encoder = init_model(checkpoint)
     data = np.array([])
     recommend = inference(model, scaler, label_encoder, data=data, batch_size=64)
     print(recommend)
+
+    recommend_df = recommend_to_df(recommend)
+    write_db(recommend_df, "mlops", "recommend")
