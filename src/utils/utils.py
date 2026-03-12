@@ -10,17 +10,32 @@
 import hashlib
 import os
 import random
+from datetime import datetime
 
 import numpy as np
 
+"""
+진입점(Entrypoint) 매개변수 조정
+- 데이터 전처리 등의 태스크에서는 특정 날짜에 의존적인 경우가 대부분임.
+  - 특히 배치 학습, 배치 추론의 경우
+- 따라서 전처리 태스크에 날짜 정보를 수행 파라미터로 추가
+"""
 
-'''
+
+def parse_date(date: str):
+    date_format = "%y%m%d"
+    parsed_date = datetime.strptime(str(date).replace("-", ""), date_format)
+    return parsed_date
+
+
+"""
 ## 모델 파일 검증 추가하기
 
 - `torch.save` 는 내부적으로 pickle을 사용해 직렬화(마샬링) 후 저장하게 됨
     - 이는 보안적 취약점으로 작용하게 됨. 따라서 최소한의 검증 절차가 필요
     - 아래 실습에서는 sha256 해시 알고리즘을 통해 변조 여부를 최소한으로 확인
-'''
+"""
+
 
 def calculate_hash(filename):
     sha256_hash = hashlib.sha256()
