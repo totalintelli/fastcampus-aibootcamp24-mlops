@@ -11,21 +11,47 @@ import os
 import sys
 
 import fire
-import wandb
+import numpy as np
 from dotenv import load_dotenv
+
+import wandb
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.dataset.data_loader import SimpleDataLoader
 from src.dataset.watch_log import get_datasets
 from src.evaluate.evaluate import evaluate
+from src.inference.inference import (
+    inference,
+    init_model,
+    load_checkpoint,
+    recommend_to_df,
+)
 from src.model.movie_predictor import MoviePredictor, model_save
+from src.postprocess.postprocess import write_db
 from src.train.train import train
 from src.utils.factory import ModelFactory
-from src.utils.utils import init_seed, auto_increment_run_suffix
+from src.utils.utils import auto_increment_run_suffix, init_seed
+
+# 추론 태스크 추가
+def run_inference(data=None, batch_size=64):
+    checkpoint = load_checkpoint()
+    model, scaler, label_encoder = init_model(checkpoint)
+
+    if data is None:
+        data = []
+
+    data = np.array(data)
+
+    recommend = inference(model, scaler, label_encoder, data, batch_size)
+    print(recommend)
+
+    write_db(recommend_to_df(recommend), "mlops", "recommend")
+
 
 init_seed()
 load_dotenv()
+
 
 def get_runs(project_name):
     return wandb.Api().runs(path=project_name, order="-created_at")
@@ -64,7 +90,7 @@ def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
     wandb.login(key=api_key)
 
     project_name = model_name.replace("_", "-")
-    
+
     run_name = get_latest_run(project_name)
     next_run_name = auto_increment_run_suffix(run_name)
 
@@ -107,11 +133,10 @@ def run_train(model_name, num_epochs=10, lr=0.01, model_ext="pth"):
     wandb.finish()
 
 
-
-
 if __name__ == "__main__":
     fire.Fire(
         {
             "train": run_train,
+            "inference": run_inference,
         }
     )
