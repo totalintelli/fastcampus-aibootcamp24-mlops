@@ -1,15 +1,50 @@
-'''
-파일 명칭 : utils.py 
+"""
+파일 명칭 : utils.py
 기     능 : 유틸리티성 코드 모듈화
 입     력 : 없음
 출     력 : 없음
 작 성  자 : 송 용 단
 작성 일자 : 2026-03-11
-'''
+"""
+
+import hashlib
 import os
 import random
 
 import numpy as np
+
+
+def calculate_hash(filename):
+    sha256_hash = hashlib.sha256()
+    with open(filename, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def save_hash(dst):
+    hash_ = calculate_hash(dst)
+    dst, _ = os.path.splitext(dst)
+    with open(f"{dst}.sha256", "w") as f:
+        f.write(hash_)
+
+
+def read_hash(dst):
+    hash_file = f"{dst}.sha256"
+
+    # 해시 파일이 없으면 생성
+    if not os.path.exists(hash_file):
+        print(f"Hash file not found. Creating: {hash_file}")
+        import hashlib
+
+        with open(dst, "rb") as f:
+            file_hash = hashlib.sha256(f.read()).hexdigest()
+        with open(hash_file, "w") as f:
+            f.write(file_hash)
+        return file_hash
+
+    with open(hash_file, "r") as f:
+        return f.read().strip()
 
 
 def init_seed():
@@ -18,21 +53,12 @@ def init_seed():
 
 
 def project_path():
-    return os.path.join(
-        os.path.dirname(
-            os.path.abspath(__file__)
-        ),
-        "..",
-        ".."
-    )
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 
 
 def model_dir(model_name):
-    return os.path.join(
-        project_path(),
-        "models",
-        model_name
-    )
+    return os.path.join(project_path(), "models", model_name)
+
 
 # Run name 자동 지정하기
 def auto_increment_run_suffix(name: str, pad=3):
