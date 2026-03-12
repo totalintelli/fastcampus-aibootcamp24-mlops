@@ -19,6 +19,9 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
+from src.dataset.data_loader import SimpleDataLoader
+from src.dataset.watch_log import WatchLogDataset
+from src.evaluate.evaluate import evaluate
 from src.model.movie_predictor import MoviePredictor
 from src.utils.utils import calculate_hash, model_dir, read_hash
 
@@ -58,3 +61,22 @@ def init_model(checkpoint):
     scaler = checkpoint.get("scaler", None)
     label_encoder = checkpoint.get("label_encoder", None)
     return model, scaler, label_encoder
+
+
+def inference(model, scaler, label_encoder, data):
+    df = make_inference_df(data)
+    dataset = WatchLogDataset(df, scaler=scaler, label_encoder=label_encoder)
+    dataloader = SimpleDataLoader(
+        dataset.features, dataset.labels, batch_size=1, shuffle=False
+    )
+    loss, predictions = evaluate(model, dataloader)
+    print(loss, predictions)
+    return dataset.decode_content_id(predictions[0])
+
+
+if __name__ == "__main__":
+    checkpoint = load_checkpoint()
+    model, scaler, label_encoder = init_model(checkpoint)
+    data = np.array([1, 1209290, 4508, 7.577, 1204.764])
+    recommend = inference(model, scaler, label_encoder, data)
+    print(recommend)
