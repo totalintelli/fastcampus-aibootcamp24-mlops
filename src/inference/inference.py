@@ -77,6 +77,6 @@ def inference(model, scaler, label_encoder, data):
 if __name__ == "__main__":
     checkpoint = load_checkpoint()
     model, scaler, label_encoder = init_model(checkpoint)
-    data = np.array([1, 1209290, 4508, 7.577, 1204.764])
+    data = np.array([1, 1159559, 4508, 7.577, 1204.764])
     recommend = inference(model, scaler, label_encoder, data)
     print(recommend)
