@@ -12,7 +12,7 @@ import os
 import pickle
 import datetime
 
-from src.utils.utils import model_dir
+from src.utils.utils import model_dir, save_hash
 
 
 def model_save(model, model_params, epoch, loss, scaler, label_encoder):
@@ -41,6 +41,8 @@ def model_save(model, model_params, epoch, loss, scaler, label_encoder):
         pickle.dump(save_data, f)
 
     print(f"Model saved to {dst}")
+
+    save_hash(dst)
 
 
 class MoviePredictor:
