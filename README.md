@@ -1,5 +1,3 @@
-### 아래 내용을 `README.md`로 바로 사용하시면 됩니다.
-
 # fastcampus-aibootcamp24-mlops
 
 패스트캠퍼스 AI Bootcamp 24 과정에서 진행한 MLOps 프로젝트입니다. 저장소 소개에는 프로젝트 기간이 **2026년 2월 27일 ~ 2026년 3월 13일**로 표시되어 있으며, 현재 공개 저장소 기준으로 Python 중심의 머신러닝 추천 시스템, FastAPI 기반 API 서버, Dockerfile, 부하 테스트 스크립트, 모델 아티팩트 저장 구조가 포함되어 있습니다. ([github.com](https://github.com/totalintelli/fastcampus-aibootcamp24-mlops))
